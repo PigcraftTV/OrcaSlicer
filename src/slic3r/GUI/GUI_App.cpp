@@ -105,6 +105,7 @@
 #include "ParamsDialog.hpp"
 #include "KBShortcutsDialog.hpp"
 #include "DownloadProgressDialog.hpp"
+#include "DiscordRPCManager.hpp"
 
 #include "BitmapCache.hpp"
 #include "Notebook.hpp"
@@ -2579,6 +2580,11 @@ bool GUI_App::OnInit()
 
 int GUI_App::OnExit()
 {
+    if (m_discord_rpc) {
+        BOOST_LOG_TRIVIAL(info) << "Shutting down Discord RPC.";
+        m_discord_rpc->Shutdown();
+    }
+
     stop_sync_user_preset();
 
     if (m_device_manager) {
@@ -3062,6 +3068,12 @@ bool GUI_App::on_init_inner()
 
     // Let the libslic3r know the callback, which will translate messages on demand.
     Slic3r::I18N::set_translate_callback(libslic3r_translate_callback);
+
+    // Initialize Discord Rich Presence
+    if (is_editor()) {
+        m_discord_rpc = std::make_unique<DiscordRPCManager>();
+        m_discord_rpc->Initialize();
+    }
 
     BOOST_LOG_TRIVIAL(info) << "create the main window";
     mainframe = new MainFrame();
@@ -6081,6 +6093,12 @@ void GUI_App::start_http_server(int port)
 
     m_http_server.set_port(static_cast<boost::asio::ip::port_type>(port));
     m_http_server.start();
+}
+
+void GUI_App::update_discord_presence(const std::string& details, const std::string& state, const std::string& small_image_key, const std::string& small_image_text)
+{
+    if (m_discord_rpc)
+        m_discord_rpc->UpdatePresence(details, state, small_image_key, small_image_text);
 }
 
 void GUI_App::stop_http_server()

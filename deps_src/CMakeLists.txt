@@ -31,6 +31,7 @@ add_subdirectory(minilzo)
 add_subdirectory(qhull)
 add_subdirectory(qoi)
 add_subdirectory(semver)      # Semver static library
+add_subdirectory(discord-rpc)
 
 # Eigen header-only library
 add_subdirectory(eigen)

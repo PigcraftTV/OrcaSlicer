@@ -256,6 +256,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/IMSlider.hpp
     GUI/DeviceErrorDialog.hpp
     GUI/DeviceErrorDialog.cpp
+    GUI/DiscordRPCManager.cpp
+    GUI/DiscordRPCManager.hpp
     GUI/IMToolbar.cpp
     GUI/IMToolbar.hpp
     GUI/InstanceCheck.cpp
@@ -736,7 +738,7 @@ else()
     set(_opengl_link_lib OpenGL::GL)
 endif()
 
-target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
+target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise discord-rpc)
 
 
 if (MSVC)

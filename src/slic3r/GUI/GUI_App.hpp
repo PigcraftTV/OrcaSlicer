@@ -83,6 +83,9 @@ class HMSQuery;
 class ModelMallDialog;
 class PingCodeBindDialog;
 class NetworkErrorDialog;
+class DiscordRPCManager;
+
+
 
 
 enum FileType
@@ -297,6 +300,7 @@ private:
     bool m_networking_cancel_update { false };
     std::shared_ptr<UpgradeNetworkJob> m_upgrade_network_job;
 
+    std::unique_ptr<DiscordRPCManager> m_discord_rpc;
     // login widget
     ZUserLogin*     login_dlg { nullptr };
 
@@ -507,6 +511,7 @@ public:
     void            start_http_server();
     void            start_http_server(int port);
     void            stop_http_server();
+    void            update_discord_presence(const std::string& details, const std::string& state, const std::string& small_image_key, const std::string& small_image_text);
     void            switch_staff_pick(bool on);
 
     void            on_show_check_privacy_dlg(int online_login = 0);

@@ -22,6 +22,8 @@
 #include "libslic3r/GCode/PostProcessor.hpp"
 #include "libslic3r/Format/SL1.hpp"
 #include "libslic3r/Thread.hpp"
+#include "libslic3r/Model.hpp"
+#include "discord_rpc.h"
 #include "libslic3r/libslic3r.h"
 
 #include <cassert>
@@ -331,6 +333,20 @@ void BackgroundSlicingProcess::thread_proc()
 		// Process the background slicing task.
 		m_state = STATE_RUNNING;
 		//BBS: internal cancel
+
+		// Set slicing presence
+		DiscordRichPresence presence;
+		memset(&presence, 0, sizeof(presence));
+		presence.details = "Slicing";
+		std::string project_name;
+		if (m_print->model().model_info && !m_print->model().model_info->model_name.empty())
+			project_name = m_print->model().model_info->model_name;
+		else
+			project_name = "Untitled";
+		presence.state = project_name.c_str();
+		presence.startTimestamp = time(0);
+		Discord_UpdatePresence(&presence);
+
 		m_internal_cancelled = false;
 		lck.unlock();
 		std::exception_ptr exception;
@@ -341,6 +357,12 @@ void BackgroundSlicingProcess::thread_proc()
 #endif
 		m_print->finalize();
 		lck.lock();
+
+		// Reset presence
+		memset(&presence, 0, sizeof(presence));
+		presence.state = "Idling";
+		Discord_UpdatePresence(&presence);
+
 		m_state = m_print->canceled() ? STATE_CANCELED : STATE_FINISHED;
 		BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << boost::format(": process finished, state %1%, print cancel_status %2%")%m_state %m_print->cancel_status();
 		if (m_print->cancel_status() != Print::CANCELED_INTERNAL) {
